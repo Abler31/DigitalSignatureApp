@@ -17,12 +17,15 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.material.button.MaterialButton
 import org.bouncycastle.jce.provider.BouncyCastleProvider
+import org.w3c.dom.Text
 import java.io.File
 import java.io.FileInputStream
+import java.io.IOException
 import java.security.KeyStore
 import java.security.PrivateKey
 import java.security.Security
 import java.security.Signature
+import java.security.UnrecoverableKeyException
 import java.security.cert.CertificateFactory
 import java.security.cert.X509Certificate
 
@@ -59,6 +62,7 @@ class MainActivity : AppCompatActivity() {
         fileNameTextView = findViewById(R.id.tv_file_name)
         val signButton = findViewById<MaterialButton>(R.id.btn_sign)
         val editTextPassword = findViewById<EditText>(R.id.et_password)
+        val textViewStatus = findViewById<TextView>(R.id.tv_status)
 
         selectFileButton.setOnClickListener {
             pickDocument.launch(arrayOf("application/*"))
@@ -82,15 +86,15 @@ class MainActivity : AppCompatActivity() {
                 val isVerified = verify(selectedFileUri, signature, certificate.publicKey)
 
                 if (isVerified) {
-                    Toast.makeText(
-                        this,
-                        "Подписание документа завершено успешно",
-                        Toast.LENGTH_LONG
-                    ).show()
+                    textViewStatus.text = "Подписание документа завершено успешно"
+                    textViewStatus.setTextColor(resources.getColor(R.color.green))
                 } else {
-                    Toast.makeText(this, "Подписание документа не удалось", Toast.LENGTH_LONG)
-                        .show()
+                    textViewStatus.text = "Подписание документа не удалось"
+                    textViewStatus.setTextColor(resources.getColor(R.color.red))
                 }
+
+            }  catch (e: IOException){
+                Toast.makeText(this, "Неправильный пароль", Toast.LENGTH_LONG).show()
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -105,7 +109,7 @@ class MainActivity : AppCompatActivity() {
                 fileNameTextView.text = getUriFileName(uri)
                 pathsPrivate = findFilePathsByExtensions(directoryPath, targetExtensionsPrivate)
                 pathsPublic = findFilePathsByExtensions(directoryPath, targetExtensionsPublic)
-                Log.d("test1", "${pathsPrivate.isEmpty()}")
+
                 if (pathsPrivate.isEmpty()) {
                     Toast.makeText(
                         this,
@@ -129,13 +133,12 @@ class MainActivity : AppCompatActivity() {
         var fileName: String? = null
         val contentResolver = contentResolver
 
-        // ContentResolver query
         val cursor: Cursor? = contentResolver.query(uri, null, null, null, null)
 
         try {
             cursor?.let {
                 if (it.moveToFirst()) {
-                    // Get the column index of the file name
+
                     val fileNameIndex: Int = it.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME)
                     if (fileNameIndex != -1) {
                         fileName = it.getString(fileNameIndex)
