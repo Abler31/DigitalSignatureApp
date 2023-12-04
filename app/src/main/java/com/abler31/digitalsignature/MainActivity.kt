@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
+import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -54,18 +55,18 @@ class MainActivity : AppCompatActivity() {
         val permission = Manifest.permission.READ_EXTERNAL_STORAGE
         ActivityCompat.requestPermissions(this, arrayOf(permission), PERMISSION_REQUEST_CODE)
 
-        //пароль для тестового ключа
-        privateKeyPassword = "password"
-
         val selectFileButton: MaterialButton = findViewById(R.id.btn_select_file)
         fileNameTextView = findViewById(R.id.tv_file_name)
         val signButton = findViewById<MaterialButton>(R.id.btn_sign)
+        val editTextPassword = findViewById<EditText>(R.id.et_password)
+
         selectFileButton.setOnClickListener {
             pickDocument.launch(arrayOf("application/*"))
         }
 
         signButton.setOnClickListener {
             try {
+                privateKeyPassword = editTextPassword.text.toString()
                 val privateKeyPath = pathsPrivate[0]
                 val publicKeyPath = pathsPublic[0]
                 // Загрузка закрытого ключа
