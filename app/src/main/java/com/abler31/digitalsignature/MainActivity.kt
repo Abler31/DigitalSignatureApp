@@ -88,15 +88,12 @@ class MainActivity : AppCompatActivity() {
                 if (isVerified) {
                     textViewStatus.text = "Подписание документа завершено успешно"
                     textViewStatus.setTextColor(resources.getColor(R.color.green))
-                } else {
-                    textViewStatus.text = "Подписание документа не удалось"
-                    textViewStatus.setTextColor(resources.getColor(R.color.red))
                 }
-
             }  catch (e: IOException){
                 Toast.makeText(this, "Неправильный пароль", Toast.LENGTH_LONG).show()
             } catch (e: Exception) {
-                e.printStackTrace()
+                textViewStatus.text = "Подписание документа не удалось"
+                textViewStatus.setTextColor(resources.getColor(R.color.red))
             }
         }
     }
@@ -115,7 +112,7 @@ class MainActivity : AppCompatActivity() {
                         this,
                         "Отсутствует закрытый ключ ЭЦП. Убедитесь, что он установлен на вашем устройстве",
                         Toast.LENGTH_LONG
-                    )
+                    ).show()
                     return@registerForActivityResult
                 }
                 if (pathsPublic.isEmpty()) {
@@ -123,7 +120,7 @@ class MainActivity : AppCompatActivity() {
                         this,
                         "Отсутствует публичный ключ ЭЦП. Убедитесь, что он установлен на вашем устройстве и соответствует закрытому ключу ЭЦП",
                         Toast.LENGTH_LONG
-                    )
+                    ).show()
                     return@registerForActivityResult
                 }
             }
